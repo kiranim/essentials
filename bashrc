@@ -6,19 +6,20 @@
 if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
+# this forces the bash to read the window size
+shopt -s checkwinsize
 
 alias tcl="/m/test_main/fwtest/bin/tcl"
 alias tcld=/m/$USER"_lab/fwtest/bin/tcl"
+
+# Below line added by Sandvine logon script
+if [[ -f /etc/profile.d/sandvine.rc ]]; then . /etc/profile.d/sandvine.rc; fi
 
 ##### SVDEV BEGIN #####
 source $HOME/.svdev_start
 ##### SVDEV END #####
 
-# Below line added by Sandvine logon script
-if [[ -f /etc/profile.d/sandvine.rc ]]; then . /etc/profile.d/sandvine.rc; fi
-
-export CPU=LINUX_6_64
-
+#PS1='[\[\033]0;\w\007\]\[\e[35;1m\]\u\[\e[0m\]\[\e[32m\]@\h:\[\033[1;31m\]<`pwv -s`>:<`lsact -short`>\[\e[34m\]\w\[\e[33m\]\$ \[\e[0m\]]\n\$'
 PS1='[\[\033]0;\w\007\]\[\e[35;1m\]\u\[\e[0m\]\[\e[32m\]@\h:\[\033[1;31m\]\[\e[34m\]\w\[\e[33m\]\$ \[\e[0m\]]\n\$'
 ###################GX#################
 alias gxc='cd /vobs/fw-policy/products/diameter/freebsd/meta/freebsd/pts/freebsd/sandvine/etc/diameter/gx'
@@ -68,6 +69,16 @@ alias fw='cd /vobs/fw'
 alias slbc='cd /vobs/fw/support/softwareLBStats'
 alias hlbc='cd /vobs/fw/application/lbc/'
 alias slsco='lsco -s'
+
+
+if [ -e /usr/share/terminfo/x/xterm-256color ]; then
+    export TERM='xterm-256color'
+else
+    export TERM='xterm-color'
+fi
+
+#clear
+
 #echo "==============================="
 ###figlet Kiran
 #echo "you have these tmux sessions"
@@ -205,9 +216,12 @@ alias gia='git add'
 alias gipl='git pull'
 alias gipu='git push'
 pathprefix=
-if hostname | grep -q lbuild
+if hostname | grep -q blr-lbuild
 then
     pathprefix=/net/blr-lview-3
+elif hostname | grep -q wtl-lbuild
+then
+    pathprefix=/net/wtl-lview-6
 fi
     alias svcode='cd $pathprefix/gitrepos/kmedlery/svcode'
     alias cupc='cd $pathprefix/gitrepos/kmedlery/svcode/support/subsystems/user_plane_controller'
@@ -348,48 +362,4 @@ pdbClient -c "lst /iso/org/dod/internet/private/enterprises/sandvine/devices/use
 echo "----------------------------------------userPlaneController/1/stats/stack/peers/sessionContextPeers/sessionContextErrorCountersTable----------------------------------------------------------"
 pdbClient -c "lst /iso/org/dod/internet/private/enterprises/sandvine/devices/userPlaneController/1/stats/stack/peers/sessionContextPeers/sessionContextErrorCountersTable"
 echo "--------------------------------------------------------------------------------------------------"
-
-}
-
-function upcpdbstats {
-
-    if [ "$1" == "c" ]
-    then
-        upcpdbsubsystemstats
-    elif [ "$1" == "s" ]
-    then
-        upcpdbstackstats
-    else
-        upcpdbsubsystemstats
-        upcpdbstackstats
-    fi
-}
-
-function upcpdbconfig {
-echo "-------------------------------------userPlaneController/1/config-------------------------------------------------------------"
-pdbClient -c "ls /iso/org/dod/internet/private/enterprises/sandvine/devices/userPlaneController/1/config"
-echo "-------------------------------------userPlaneController/1/config/subsystem-------------------------------------------------------------"
-pdbClient -c "ls /iso/org/dod/internet/private/enterprises/sandvine/devices/userPlaneController/1/config/subsystem"
-echo "-------------------------------------userPlaneController/1/config/stack-------------------------------------------------------------"
-pdbClient -c "ls /iso/org/dod/internet/private/enterprises/sandvine/devices/userPlaneController/1/config/stack"
-echo "-------------------------------------userPlaneController/1/config/stack/peerTable/-------------------------------------------------------------"
-pdbClient -c "lst /iso/org/dod/internet/private/enterprises/sandvine/devices/userPlaneController/1/config/stack/peerTable/"
-echo "--------------------------------------------------------------------------------------------------"
-}
-
-function settraces {
-echo "-----setting the traces"
-
-numberoftraces=`sudo pdbClient -c "ls /iso/org/dod/internet/private/enterprises/sandvine/devices/svtrace/1/config/channelTable/channelEntry/level" | wc -l`
-numberoftraces=50
-echo "--------numberoftraces-->$numberoftraces"
-while [ $numberoftraces -gt 0 ];
-do
-      pdbClient -c "set /iso/org/dod/internet/private/enterprises/sandvine/devices/svtrace/1/config/channelTable/channelEntry/level/$numberoftraces 1000"
-      echo "---inside numberoftraces-->$numberoftraces"
-      sleep 1
-      let numberoftraces-=1
-done
-echo "----- Done-----"
-
 }
