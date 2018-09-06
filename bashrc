@@ -10,6 +10,9 @@ fi
 alias tcl="/m/test_main/fwtest/bin/tcl"
 alias tcld=/m/$USER"_lab/fwtest/bin/tcl"
 
+# this forces the bash to read the window size
+shopt -s checkwinsize
+
 ##### SVDEV BEGIN #####
 source $HOME/.svdev_start
 ##### SVDEV END #####
